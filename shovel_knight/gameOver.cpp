@@ -21,6 +21,10 @@ HRESULT gameOver::init()
 	IMAGEMANAGER->addImage("gameover6", "image/UI/gameover6.bmp", 1280, 720, true, RGB(255, 0, 255));
 	IMAGEMANAGER->addImage("gameover7", "image/UI/gameover7.bmp", 1280, 720, true, RGB(255, 0, 255));
 	IMAGEMANAGER->addImage("gameover8", "image/UI/gameover8.bmp", 1280, 720, true, RGB(255, 0, 255));
+
+	SCENEMANAGER->delFire();
+	SCENEMANAGER->setGold(10000);
+	SCENEMANAGER->setMana(100);
 	return S_OK;
 }
 

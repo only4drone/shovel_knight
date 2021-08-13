@@ -19,7 +19,7 @@ private:
 	bool hasFire =false;
 	int _gold = 10000;
 	int _mana = 100;
-
+	
 public:
 	sceneManager();
 	~sceneManager();
@@ -33,7 +33,7 @@ public:
 
 	HRESULT changeScene(string sceneName);
 
-
+	int bossHp = 0;
 	int hp = 0;
 	void nowHP(int x);
 
@@ -45,11 +45,17 @@ public:
 	int getMana();
 	void setMana(int x);
 
+	int getBossHp();
+	void setBossHp(int x);
+
 	// 파이어 유물을 사다.
 	void getFire();
+	void delFire();
 
 	// 파이어 유물을  보유하고 있는지 아닌지 체크해서 반환해준다;
 	bool checkFire();
+
+
 
 };
 

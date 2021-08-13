@@ -25,6 +25,20 @@ HRESULT uiManager::init()
 	IMAGEMANAGER->addImage("hp8", "image/UI/UI_hp8.bmp", 1280, 720, true, RGB(255, 0, 255));
 	IMAGEMANAGER->addImage("fireUI", "image/UI/UI_fire.bmp", 1280, 720, true, RGB(255, 0, 255));
 
+	IMAGEMANAGER->addImage("boss0", "image/UI/UI_boss0.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("boss1", "image/UI/UI_boss1.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("boss2", "image/UI/UI_boss2.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("boss3", "image/UI/UI_boss3.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("boss4", "image/UI/UI_boss4.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("boss5", "image/UI/UI_boss5.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("boss6", "image/UI/UI_boss6.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("boss7", "image/UI/UI_boss7.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("boss8", "image/UI/UI_boss8.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("boss9", "image/UI/UI_boss9.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("boss10", "image/UI/UI_boss10.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("boss11", "image/UI/UI_boss11.bmp", 1280, 720, true, RGB(255, 0, 255));
+	IMAGEMANAGER->addImage("boss12", "image/UI/UI_boss12.bmp", 1280, 720, true, RGB(255, 0, 255));
+
 	IMAGEMANAGER->addImage("talkframe", "image/UI/UI_dial.bmp", 1280, 720, true, RGB(255, 0, 255));
 	IMAGEMANAGER->addImage("t1", "image/UI/UI_dial_1.bmp", 1280, 720, true, RGB(255, 0, 255));
 	IMAGEMANAGER->addImage("t2", "image/UI/UI_dial_2.bmp", 1280, 720, true, RGB(255, 0, 255));
@@ -69,6 +83,20 @@ void uiManager::render()
 	if (SCENEMANAGER->hp == 2) IMAGEMANAGER->findImage("hp2")->render(getMemDC());
 	if (SCENEMANAGER->hp == 1) IMAGEMANAGER->findImage("hp1")->render(getMemDC());
 	if (SCENEMANAGER->hp == 0) IMAGEMANAGER->findImage("hp0")->render(getMemDC());
+
+	if (SCENEMANAGER->bossHp == 12) IMAGEMANAGER->findImage("boss12")->render(getMemDC());
+	if (SCENEMANAGER->bossHp == 11) IMAGEMANAGER->findImage("boss11")->render(getMemDC());
+	if (SCENEMANAGER->bossHp == 10) IMAGEMANAGER->findImage("boss10")->render(getMemDC());
+	if (SCENEMANAGER->bossHp == 9) IMAGEMANAGER->findImage("boss9")->render(getMemDC());
+	if (SCENEMANAGER->bossHp == 8) IMAGEMANAGER->findImage("boss8")->render(getMemDC());
+	if (SCENEMANAGER->bossHp == 7) IMAGEMANAGER->findImage("boss7")->render(getMemDC());
+	if (SCENEMANAGER->bossHp == 6) IMAGEMANAGER->findImage("boss6")->render(getMemDC());
+	if (SCENEMANAGER->bossHp == 5) IMAGEMANAGER->findImage("boss5")->render(getMemDC());
+	if (SCENEMANAGER->bossHp == 4) IMAGEMANAGER->findImage("boss4")->render(getMemDC());
+	if (SCENEMANAGER->bossHp == 3) IMAGEMANAGER->findImage("boss3")->render(getMemDC());
+	if (SCENEMANAGER->bossHp == 2) IMAGEMANAGER->findImage("boss2")->render(getMemDC());
+	if (SCENEMANAGER->bossHp == 1) IMAGEMANAGER->findImage("boss1")->render(getMemDC());
+	if (SCENEMANAGER->bossHp == 0) IMAGEMANAGER->findImage("boss0")->render(getMemDC());
 
 	if(SCENEMANAGER->checkFire()) IMAGEMANAGER->findImage("fireUI")->render(getMemDC());
 

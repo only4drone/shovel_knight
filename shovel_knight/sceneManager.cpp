@@ -112,9 +112,24 @@ void sceneManager::setMana(int x)
 	_mana = x;
 }
 
+int sceneManager::getBossHp()
+{
+	return bossHp;
+}
+
+void sceneManager::setBossHp(int x)
+{
+	bossHp = x;
+}
+
 void sceneManager::getFire()
 {
 	hasFire = true;
+}
+
+void sceneManager::delFire()
+{
+	hasFire = false;
 }
 
 bool sceneManager::checkFire()
