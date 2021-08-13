@@ -26,6 +26,7 @@ protected:
 	ENEMYDIRECTION	_enemyDirection;
 
 	image*			_imageName;			//적이 사용할 이미지 이름
+	image*			_lazer;				//레이저 이미지
 	RECT			_rc;				//적 렉트
 	RECT			_proveRC;			//적이 플레이어를 감지하는 렉트
 	RECT			_bodyRC;			//드레곤 몸통 렉트
@@ -73,8 +74,6 @@ protected:
 	bool _isDelete;		//true면 삭제
 	bool _isSmoke;		//ture면 적 상태가 E_SMOKE로 변함
 
-	bool _isBug;		//보스용이 벌레를 뿜게 하는 변수
-
 public:
 	enemy();
 	~enemy();
@@ -121,7 +120,5 @@ public:
 	inline void setHead(bool x) { _isSmoke = x; }
 
 	inline void setFrameX(int x) { _currentFrameX = x; }
-
-	inline bool getBug() { return _isBug; }
 };
 

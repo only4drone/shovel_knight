@@ -22,6 +22,7 @@ HRESULT enemy::init(const char* imageName, POINT position, ENEMYDIRECTION enemyD
 	_imageCount  = 0;
 	
 	_enemyName = imageName;
+	_lazer = IMAGEMANAGER->findImage("lazer");
 	_str = " and idle";
 	_strSum = _enemyName + _str;
 
@@ -112,6 +113,10 @@ void enemy::draw()
 	if (_enemyName == "dragon")
 	{
 		_imageName->frameRender(getMemDC(), _imageRC.left, _imageRC.top, _currentFrameX, _currentFrameY);
+		if (_enemyState == E_ATTACK)
+		{
+			_lazer->frameRender(getMemDC(), _rc.left - _lazer->getFrameWidth(), _rc.top - 40, _currentFrameX, _currentFrameY);
+		}
 	}
 }
 

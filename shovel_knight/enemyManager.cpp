@@ -341,7 +341,9 @@ void enemyManager::enemyImageStorage()
     IMAGEMANAGER->addFrameImage("dragon and move", "image/shovel knight_dragon and move.bmp", 3000, 300, 6, 1, true, RGB(255, 0, 255));
     IMAGEMANAGER->addFrameImage("dragon and attack", "image/shovel knight_dragon and attack.bmp", 3000, 300, 6, 1, true, RGB(255, 0, 255));
     IMAGEMANAGER->addFrameImage("dragon and die", "image/shovel knight_dragon and die.bmp", 500, 300, 1, 1, true, RGB(255, 0, 255));
+    IMAGEMANAGER->addFrameImage("lazer", "image/shovel knight_lazer.bmp", 4800, 150, 6, 1, true, RGB(255, 0, 255));
     //boss
     //죽었을 때 연기
     IMAGEMANAGER->addFrameImage("smoke", "image/shovel knight_smoke.bmp", 300, 40, 5, 1, true, RGB(255, 0, 255));
+
 }

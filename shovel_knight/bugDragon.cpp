@@ -53,15 +53,6 @@ void bugDragon::enemyAI()
 			if (_attackCount > 200 && _attackCount <= 250)
 			{
 				_enemyState = E_ATTACK;
-
-				if (_attackCount == 201)
-				{
-					_isBug = true;
-				}
-				if (_attackCount == 249)
-				{
-					_isBug = false;
-				}
 			}
 			if (_attackCount == 250)
 			{
