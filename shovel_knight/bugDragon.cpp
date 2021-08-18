@@ -61,7 +61,7 @@ void bugDragon::enemyAI()
 		}
 	}
 
-	if (_hitCount == 12)
+	if (_hitCount >= 12)
 	{
 		_enemyState = E_DIE;
 	}

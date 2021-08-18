@@ -16,6 +16,9 @@ HRESULT enemyManager::init()
 {
     enemyImageStorage();        //적 이미지 초기화
 
+    _bullet = new mHellFire;
+    _bullet->init(100, 1000);
+
     return S_OK;
 }
 
@@ -40,6 +43,7 @@ void enemyManager::update()
     }
     enemyBulletFire();
     collision();
+    _bullet->update();
 }
 
 void enemyManager::render()
@@ -48,6 +52,8 @@ void enemyManager::render()
     {
         (*_viEnemy)->render();
     }
+
+    _bullet->render();
 }
 
 void enemyManager::enemySetting()
@@ -55,10 +61,6 @@ void enemyManager::enemySetting()
     
 	enemy* enemyBeeto;
 
-
-    enemyBeeto = new bugDragon;
-    enemyBeeto->init("dragon", PointMake(1600, 580), E_LEFT);
-    _vEnemy.push_back(enemyBeeto);
     
     enemyBeeto = new beeto;
     enemyBeeto->init("beeto", PointMake(1600, 580), E_LEFT);
@@ -148,17 +150,10 @@ void enemyManager::enemySetting()
     enemyBeeto->init("steed", PointMake(12200, 2025), E_LEFT);
     _vEnemy.push_back(enemyBeeto);
 
-    enemyBeeto = new wizard;
-    enemyBeeto->init("wizard", PointMake(14900, 1920), E_LEFT);
-    _vEnemy.push_back(enemyBeeto);
-
     enemyBeeto = new beeto;
     enemyBeeto->init("beeto", PointMake(14700, 1355), E_LEFT);
     _vEnemy.push_back(enemyBeeto);
 
-    enemyBeeto = new wizard;
-    enemyBeeto->init("wizard", PointMake(14300, 1355), E_RIGHT);
-    _vEnemy.push_back(enemyBeeto);
 
     enemyBeeto = new beeto;
     enemyBeeto->init("beeto", PointMake(14300, 530), E_LEFT);
@@ -178,14 +173,6 @@ void enemyManager::enemySetting()
 
     enemyBeeto = new beeto;
     enemyBeeto->init("beeto", PointMake(18200, 630 - WINSIZEY), E_LEFT);
-    _vEnemy.push_back(enemyBeeto);
-
-    enemyBeeto = new wizard;
-    enemyBeeto->init("wizard", PointMake(18800, 630 - WINSIZEY), E_LEFT);
-    _vEnemy.push_back(enemyBeeto);
-
-    enemyBeeto = new wizard;
-    enemyBeeto->init("wizard", PointMake(19700, 530 - WINSIZEY), E_LEFT);
     _vEnemy.push_back(enemyBeeto);
 
     enemyBeeto = new beeto;
@@ -212,10 +199,6 @@ void enemyManager::enemySetting()
     enemyBeeto->init("beeto", PointMake(20000, 530 - WINSIZEY * 3), E_LEFT);
     _vEnemy.push_back(enemyBeeto);
 
-    enemyBeeto = new wizard;
-    enemyBeeto->init("wizard", PointMake(20600, 580 - WINSIZEY * 3), E_LEFT);
-    _vEnemy.push_back(enemyBeeto);
-
     enemyBeeto = new beeto;
     enemyBeeto->init("beeto", PointMake(20900, 380 - WINSIZEY * 3), E_LEFT);
     _vEnemy.push_back(enemyBeeto);
@@ -224,8 +207,8 @@ void enemyManager::enemySetting()
     enemyBeeto->init("beeto", PointMake(21400, 580 - WINSIZEY * 3), E_LEFT);
     _vEnemy.push_back(enemyBeeto);
 
-    enemyBeeto = new dragon;
-    enemyBeeto->init("dragon", PointMake(22200, 580 - WINSIZEY * 3), E_LEFT);
+    enemyBeeto = new bugDragon;
+    enemyBeeto->init("bugDragon", PointMake(22200, 580 - WINSIZEY * 3), E_LEFT);
     _vEnemy.push_back(enemyBeeto);
 
 }
@@ -234,6 +217,27 @@ void enemyManager::enemySetting()
 
 void enemyManager::enemyBulletFire()
 {
+    for (int i = 0; i < _vEnemy.size(); ++i)
+    {
+        if (getVEnemy()[i]->getEnemyState() == E_SMOKE) continue;
+        if (getVEnemy()[i]->getEnemyName() != "wizard") continue;
+
+        float direction;
+        if (getVEnemy()[i]->getEnemyDirction() == 0) direction = PI;
+        else if (getVEnemy()[i]->getEnemyDirction() == 1) direction = 0;
+
+        getVEnemy()[i]->setAttackCount(getVEnemy()[i]->getAttackCount() + 1);
+
+        if (getVEnemy()[i]->getAttackCount() > 150)
+        {
+            float x = (getVEnemy()[i]->getRect().left + getVEnemy()[i]->getRect().right) / 2;
+            float y = (getVEnemy()[i]->getRect().top + getVEnemy()[i]->getRect().bottom) / 2;
+            _bullet->fire(x, y, direction);
+            getVEnemy()[i]->setAttackCount(0);
+        }
+        break;
+    }
+
 }
 
 void enemyManager::removeEnemy(int arrNum)
@@ -319,6 +323,17 @@ void enemyManager::collision()
         }
     }
     
+    // 파이어볼과 캐릭터 충돌 처리
+    for (int i = 0; i < _bullet->getVBullet().size(); i++)
+    {
+        RECT temp;
+        RECT character = _character->getCharacterRect();
+        RECT fireball = _bullet->getVBullet()[i].rc;
+        if (IntersectRect(&temp, &character, &fireball))
+        {
+            _character->hitDamage(1);
+        }
+    }
 }
 
 void enemyManager::enemyImageStorage()
@@ -342,7 +357,12 @@ void enemyManager::enemyImageStorage()
     IMAGEMANAGER->addFrameImage("dragon and attack", "image/shovel knight_dragon and attack.bmp", 3000, 300, 6, 1, true, RGB(255, 0, 255));
     IMAGEMANAGER->addFrameImage("dragon and die", "image/shovel knight_dragon and die.bmp", 500, 300, 1, 1, true, RGB(255, 0, 255));
     IMAGEMANAGER->addFrameImage("lazer", "image/shovel knight_lazer.bmp", 4800, 150, 6, 1, true, RGB(255, 0, 255));
-    //boss
+    //bugDragon
+    IMAGEMANAGER->addFrameImage("bugDragon and idle", "image/shovel knight_bugDragon and idle.bmp", 6000, 300, 12, 1, true, RGB(255, 0, 255));
+    IMAGEMANAGER->addFrameImage("bugDragon and move", "image/shovel knight_bugDragon and move.bmp", 3000, 300, 6, 1, true, RGB(255, 0, 255));
+    IMAGEMANAGER->addFrameImage("bugDragon and attack", "image/shovel knight_bugDragon and attack.bmp", 3000, 300, 6, 1, true, RGB(255, 0, 255));
+    IMAGEMANAGER->addFrameImage("bugDragon and die", "image/shovel knight_bugDragon and die.bmp", 500, 300, 1, 1, true, RGB(255, 0, 255));
+    
     //죽었을 때 연기
     IMAGEMANAGER->addFrameImage("smoke", "image/shovel knight_smoke.bmp", 300, 40, 5, 1, true, RGB(255, 0, 255));
 

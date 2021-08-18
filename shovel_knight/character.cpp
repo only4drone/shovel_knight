@@ -35,13 +35,13 @@ HRESULT character::init() // 인잇
     _isPixelCollision = true;
     _isPlatformCollision = false;
     _isSandBlockCollision = false;
-    _isDeath = false;
+    _isDeath = _isGod = _bossAttack = false;
     _speed = _gravity = _jumpPower = 0;
     _currentHP = _maxHP = 8;
-    _currentFrame = _count = 0;
+    _currentFrame = _count = _noHitCount = 0;
     _damage = 1;
     _hangFrameCount = _platformNum = _sandBlockNum = _deathFrameCount = 0;
-    
+
     _imgRect = RectMakeCenter(_x, _y, _characterImg->getFrameWidth(), _characterImg->getFrameHeight());
     _collisionRect = RectMakeCenter(_x, _y, 56, 96);
 
@@ -57,14 +57,14 @@ void character::release()
 
 void character::update() // 업데이트
 {
-    _bullet->update();
+    _bullet->update(); // 파이어볼 업데이트
 
     gravity();
     controll();
     attackRectMake();
     collision();
     imgFrameSetting();
-    
+
     // 렉트 갱신
     _imgRect = RectMakeCenter(_x, _y, _characterImg->getFrameWidth(), _characterImg->getFrameHeight());
     _collisionRect = RectMakeCenter(_x, _y, 56, 96);
@@ -246,6 +246,8 @@ void character::collision() // 충돌 처리 묶음
     bubbleCollision();
     enemyCollision();
     jewelCollision();
+    foodCollision();
+    npcCollisionOut();
 }
 
 void character::pixelCollision() // 캐릭터 픽셀 충돌 처리
@@ -316,7 +318,7 @@ void character::pixelCollision() // 캐릭터 픽셀 충돌 처리
         // 상단 픽셀 충돌 처리
         int proveYTop = _y - ((_collisionRect.bottom - _collisionRect.top) / 2) - _mapCamera->getCamY();
 
-        for (int i = proveYTop; i > proveYTop - 1; i--)
+        for (int i = proveYTop; i > proveYTop - 5; i--)
         {
             // 캐릭터 충돌 렉트의 왼쪽 값, proveYTop 좌표 값에 마젠타가 있으면 충돌 처리
             if (GetPixel(_mapCamera->getBackGroundMagenta()->getMemDC(), _collisionRect.left - _mapCamera->getCamX(), i) == RGB(255, 0, 255))
@@ -351,7 +353,7 @@ void character::pixelCollision() // 캐릭터 픽셀 충돌 처리
             // 캐릭터 우측을 검사하기 위한 변수
             int proveXRight = _x + ((_collisionRect.right - _collisionRect.left) / 2) - _mapCamera->getCamX();
 
-            for (int i = proveXRight - 1; i < proveXRight + 1; i++)
+            for (int i = proveXRight - 1; i < proveXRight + 5; i++)
             {
                 // proveXRight 좌표 값, 캐릭터 충돌 렉트의 상단 값에 마젠타가 있으면 충돌 처리 
                 if (GetPixel(_mapCamera->getBackGroundMagenta()->getMemDC(), i, _y - _mapCamera->getCamY()) == RGB(255, 0, 255))
@@ -417,6 +419,7 @@ void character::platformCollision() // 캐릭터 발판 충돌 처리
         if (PtInRect(&platform, check3)) // 만약 밑에 발판이 있다면 떨어지지 않음(움직이는 발판때문에 처리)
         {
             if (KEYMANAGER->isStayKeyDown('D') || KEYMANAGER->isStayKeyDown('A')) _state = RUN;
+            else if (KEYMANAGER->isStayKeyDown('J')) _state = ATTACK;
             else _state = IDLE;
             imgSetting();
             _y += _mapCamera->getSpeed();
@@ -462,6 +465,7 @@ void character::platformCollision() // 캐릭터 발판 충돌 처리
                     _y -= height;
                     _gravity = _jumpPower = 0; // 중력, 점프파워 초기화
                     if (KEYMANAGER->isStayKeyDown('D') || KEYMANAGER->isStayKeyDown('A')) _state = RUN;
+                    else if (KEYMANAGER->isStayKeyDown('J')) _state = ATTACK;
                     else _state = IDLE;
                     imgSetting();
                     _isPlatformCollision = true;
@@ -664,23 +668,55 @@ void character::bubbleCollision() // 캐릭터 버블 충돌 처리
 
 void character::enemyCollision() // 캐릭터 몬스터 충돌 처리
 {
-    for (int i = 0; i < _enemyManager->getVEnemy().size(); i++)
+    if (_state != DEATH)
     {
-        RECT temp;
-        RECT enemy = _enemyManager->getVEnemy()[i]->getRect();
-
-        if (IntersectRect(&temp, &_attackCollisionRect, &enemy)) // 몬스터에게 공격 처리
+        for (int i = 0; i < _enemyManager->getVEnemy().size(); i++)
         {
-            if (_state == JUMPBOTTOMATTACK) // 점프 하단 공격이면 위로 다시 튀어 오름
+            RECT temp;
+            RECT enemy = _enemyManager->getVEnemy()[i]->getRect();
+            RECT enemyBody = _enemyManager->getVEnemy()[i]->getbodyRect();
+            RECT beam = _enemyManager->getVEnemy()[i]->getLazerRect();
+
+            // 몬스터에게 공격했을 때~
+            if (IntersectRect(&temp, &_attackCollisionRect, &enemy) || IntersectRect(&temp, &_attackCollisionRect, &enemyBody))
             {
-                _jumpPower = JUMPPOWER;
-                _gravity = GRAVITY;
+                if (_state == JUMPBOTTOMATTACK) // 점프 하단 공격이면 위로 다시 튀어 오름
+                {
+                    _jumpPower = JUMPPOWER;
+                    _gravity = GRAVITY;
+                }
             }
-        }
 
-        if (IntersectRect(&temp, &_collisionRect, &enemy))  // 몬스터에게 피격 처리
-        {
-            if (_state != HURT && _state != JUMPBOTTOMATTACK) hitDamage(1); 
+            // 보스 몬스터 공격했을 때 피 깍임
+            if (IntersectRect(&temp, &_attackCollisionRect, &enemy))
+            {
+                if (_enemyManager->getVEnemy()[i]->getEnemyName() == "bugDragon")
+                {
+                    if (_bossAttack == false || _state == JUMPBOTTOMATTACK)
+                    {
+                        SCENEMANAGER->setBossHp(SCENEMANAGER->getBossHp() - 1);
+                        _bossAttack = true;
+                    }
+                }
+            }
+
+            // 보스 몬스터 빔 쏜 공격 피격 처리
+            if (IntersectRect(&temp, &_collisionRect, &beam))
+            {
+                if (_state != HURT && _state != DEATH) hitDamage(1);
+            }
+
+            // 몬스터 몸통 피격 처리
+            if (IntersectRect(&temp, &_collisionRect, &enemy))
+            {
+                if (_state != HURT && _state != JUMPBOTTOMATTACK && _state != DEATH) hitDamage(1);
+            }
+
+            // 용 몸통에 피격 처리
+            if (IntersectRect(&temp, &_collisionRect, &enemyBody))
+            {
+                if (_state != HURT && _state != JUMPBOTTOMATTACK && _state != DEATH) hitDamage(1);
+            }
         }
     }
 }
@@ -695,7 +731,30 @@ void character::jewelCollision() // 캐릭터 쥬얼 충돌 처리
         {
             if (_object->getJewel(i).index == 12) SCENEMANAGER->setGold(SCENEMANAGER->getGold() + 500); // 500원 보석
             if (_object->getJewel(i).index == 13) SCENEMANAGER->setGold(SCENEMANAGER->getGold() + 100); // 100원 동전
-            _object->setJewel(i, false); // 쥬얼 제거 신호
+
+            _object->setJewel(i, false); // 쥬얼 제거
+        }
+    }
+}
+
+void character::foodCollision() // 캐릭터 음식 충돌 처리
+{
+    for (int i = 0; i < _object->getFoodMAX(); i++)
+    {
+        RECT temp;
+        RECT food = _object->getFood(i).rc;
+        if (IntersectRect(&temp, &_collisionRect, &food))
+        {
+            if (_object->getFood(i).index == 2)
+            {
+                _currentHP += 4;                                       // 체력 4 회복
+                if (_currentHP > 8) _currentHP = 8;
+
+                SCENEMANAGER->setMana(SCENEMANAGER->getMana() + 50);   // 마나 50 회복
+                if (SCENEMANAGER->getMana() > 100) SCENEMANAGER->setMana(100);
+            }
+
+            _object->setFood(i, false); // 음식 제거
         }
     }
 }
@@ -709,20 +768,64 @@ void character::bulletCollision() // 파이어볼 충돌 처리
             RECT temp;
             RECT bulletRect = _bullet->getVBullet()[i].rc;
             RECT enemyRect = _enemyManager->getVEnemy()[j]->getRect();
+
+            if (IntersectRect(&temp, &bulletRect, &enemyRect) && _enemyManager->getVEnemy()[j]->getEnemyName() == "bugDragon")
+            {
+                _bullet->removeMissile(i);
+                SCENEMANAGER->setBossHp(SCENEMANAGER->getBossHp() - 1);
+                _enemyManager->getVEnemy()[j]->setHit(1);
+                _enemyManager->getVEnemy()[j]->setHead(true);
+                _enemyManager->getVEnemy()[j]->setDefense(true);
+                _bossAttack = true;
+
+                break;
+            }
+            
             if (IntersectRect(&temp, &bulletRect, &enemyRect))
             {
                 _bullet->removeMissile(i);
                 _enemyManager->getVEnemy()[j]->setHit(1);
-                _enemyManager->getVEnemy()[j]->setHead(false);
+                _enemyManager->getVEnemy()[j]->setHead(true);
                 _enemyManager->getVEnemy()[j]->setDefense(true);
+
                 break;
             }
         }
     }
 }
 
+void character::npcCollisionOut() // NPC와 거리가 멀어지면 UI 죵료 처리
+{
+    if (_ui->getTalkOpen() == true)
+    {
+        _distance = getDistance(_object->getNPC(1).x, _object->getNPC(1).y, _x - _mapCamera->getCamX(), _y - _mapCamera->getCamY());
+        if (_distance > 600) _ui->talklingManOff();
+    }
+    else if (_ui->getFireShopOpen() == true)
+    {
+        _distance = getDistance(_object->getNPC(2).x, _object->getNPC(2).y, _x - _mapCamera->getCamX(), _y - _mapCamera->getCamY());
+        if (_distance > 1100) _ui->fireshopOff();
+    }
+    else if (_ui->getGoatShopOpen() == true)
+    {
+        _distance = getDistance(_object->getNPC(3).x, _object->getNPC(3).y, _x - _mapCamera->getCamX(), _y - _mapCamera->getCamY());
+        if (_distance < 6600) _ui->goatshopOff();
+    }
+}
+
 void character::imgFrameSetting() // 캐릭터 이미지 프레임 처리
 {
+    // 무적 프레임
+    if (_isGod == true)
+    {
+        _noHitCount++;
+        if (_noHitCount >= 100)
+        {
+            _noHitCount = 0;
+            _isGod = false;
+        }
+    }
+
     // 캐릭터 데스 처리 체크
     if (_currentHP <= 0)
     {
@@ -894,7 +997,7 @@ void character::run(bool direction) // 캐릭터 달리기 처리
     _direction = direction;
     _speed = _mapCamera->getSpeed();
 
-    if(direction == 1) _x -= _speed;
+    if (direction == 1) _x -= _speed;
     else if (direction == 0) _x += _speed;
 }
 
@@ -911,6 +1014,8 @@ void character::jump() // 캐릭터 점프 처리
 
 void character::attack() // 캐릭터 공격 처리
 {
+    _bossAttack = false;
+
     if (_state != JUMPATTACK)
     {
         if (_state == JUMP || _state == JUMPBOTTOMATTACK) // 점프 상태
@@ -956,8 +1061,8 @@ void character::skill() // 캐릭터 스킬 처리
             SCENEMANAGER->setMana(SCENEMANAGER->getMana() - 5);
             _state = SKILL;
             imgSetting();
-
-            if(_direction == 0) _bullet->fire(_x, _y, 0);
+            _bossAttack = false;
+            if (_direction == 0) _bullet->fire(_x, _y, 0);
             else _bullet->fire(_x, _y, PI);
         }
     }
@@ -965,17 +1070,24 @@ void character::skill() // 캐릭터 스킬 처리
 
 void character::hitDamage(float damage) // 캐릭터 피격 시 처리
 {
-    _currentHP -= damage;
-    _state = HURT;
-    imgSetting();
+    if (_state != DEATH) // 죽음 상태가 아닐 때
+    {
+        if (_isGod == false) // 무적 상태에서는 노히트
+        {
+            _currentHP -= damage;
+            _state = HURT;
+            imgSetting();
 
-    _isPlatformCollision = false;
-    _isSandBlockCollision = false;
-    _isPixelCollision = false;
+            _isPlatformCollision = false;
+            _isSandBlockCollision = false;
+            _isPixelCollision = false;
+            _isGod = true;
 
-    // 피격 당하면 뒤로 밀리는 처리를 위해
-    _jumpPower = JUMPPOWER / 1.3;
-    _gravity = GRAVITY;
+            // 피격 당하면 뒤로 밀리는 처리를 위해
+            _jumpPower = JUMPPOWER / 1.3;
+            _gravity = GRAVITY;
+        }
+    }
 }
 
 void character::death() // 캐릭터 죽음 처리
@@ -986,33 +1098,36 @@ void character::death() // 캐릭터 죽음 처리
         imgSetting();
         _isDeath = true;
     }
-    
+
     if (_direction == 0 && _currentFrame >= _characterImg->getMaxFrameX())
     {
         _deathFrameCount++;
-        if(_deathFrameCount >= 50) SCENEMANAGER->changeScene("gameover");
+        if (_deathFrameCount >= 50) SCENEMANAGER->changeScene("gameover");
     }
     if (_direction == 1 && _currentFrame <= 0)
     {
         _deathFrameCount++;
         if (_deathFrameCount >= 50) SCENEMANAGER->changeScene("gameover");
     }
-    
+
 }
 
 void character::shop(int arrNum) // 캐릭터 상점 이용 처리
 {
-    switch (arrNum)
+    if (_ui->getTalkOpen() == false && _ui->getFireShopOpen() == false && _ui->getGoatShopOpen() == false) // 아무 상점도 열려 있지 않을 때
     {
-    case 1: // 대장장이 아저쒸
-        _ui->talklingManOn();
-        break;
-    case 2: // 미녀 언니
-        _ui->fireshopOn();
-        break;
-    case 3: // 앙마 염소
-        _ui->goatshopOn();
-        break;
+        switch (arrNum)
+        {
+        case 1: // 대장장이 아저쒸
+            _ui->talklingManOn();
+            break;
+        case 2: // 미녀 언니
+            _ui->fireshopOn();
+            break;
+        case 3: // 앙마 염소
+            _ui->goatshopOn();
+            break;
+        }
     }
 }
 
@@ -1070,6 +1185,9 @@ void character::render() // 캐릭터 렌더
 
     sprintf_s(str, "_pixel : %d", _isPixelCollision);
     TextOut(getMemDC(), 0, 340, str, strlen(str));
+
+    sprintf_s(str, "_distance : %f", _distance);
+    TextOut(getMemDC(), 0, 360, str, strlen(str));
 }
 
 

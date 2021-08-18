@@ -22,7 +22,7 @@ private:
 	vEnemy		_vEnemy;
 	viEnemy		_viEnemy;
 
-	//bullet* _bullet;
+	mHellFire* _bullet;
 
 	mapCamera* _mapCamera;
 	character* _character;

@@ -45,12 +45,15 @@ private:
 	float _speed;									// 캐릭터 이동속도 값
 	float _jumpPower;								// 점프력 값
 	float _gravity;									// 중력 값
+	float _distance;								// NPC와의 거리 체크 값(거리 벗어나면 UI 종료를 위해)
 
 	bool _direction;								// 캐릭터가 바라보고 있는 방향 0 == 오른쪽 방향, 1 == 왼쪽 방향 바라봄
 	bool _isPixelCollision;							// 캐릭터가 픽셀 충돌 중인가?
-	bool _isPlatformCollision;						// 캐릭터가 발판 충돌 중안거?
-	bool _isSandBlockCollision;						// 캐릭터가 샌드블록 충돌 중안거?
+	bool _isPlatformCollision;						// 캐릭터가 발판 충돌 중인가?
+	bool _isSandBlockCollision;						// 캐릭터가 샌드블록 충돌 중인가?
 	bool _isDeath;									// 캐릭터가 죽었는가?
+	bool _isGod;									// 무적 상태
+	bool _bossAttack;								// 보스 공격 체크 
 
 	int _damage;									// 캐릭터 데미지
 	int _currentHP, _maxHP;							// 캐릭터 현재, 맥스 체력
@@ -59,6 +62,7 @@ private:
 	int _hangFrameCount;							// 사다리 카운트로 이 카운트에 따라 hang 이미지 갱신
 	int _skillFrameCount;							// 스킬 행동의 카운트로 이 카운트에 따라 이미지 멈추는 시점 계산
 	int _deathFrameCount;							// 죽었을 때 마지막 프레임 후 게임오버씬으로 넘어가는 시점 계산
+	int _noHitCount;								// 무적 시간 계산
 
 	int _platformNum;								// 현재 어떤 발판에 충돌했는지 기록
 	int _sandBlockNum;								// 현재 어떤 샌드블록에 충돌했는지 기록
@@ -84,7 +88,9 @@ public:
 	void bubbleCollision();														// 캐릭터 버블 충돌 처리
 	void enemyCollision();														// 캐릭터 몬스터 충돌 처리
 	void jewelCollision();														// 캐릭터 쥬얼 충돌 처리
+	void foodCollision();														// 캐릭터 음식 충돌 처리
 	void bulletCollision();														// 파이어볼 충돌 처리
+	void npcCollisionOut();														// NPC와 거리가 멀어지면 UI 죵료 처리
 	void imgFrameSetting();														// 캐릭터 이미지 프레임 처리
 
 	void imgSetting();															// 상태에 따라 이미지 처리

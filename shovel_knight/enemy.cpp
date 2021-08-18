@@ -37,6 +37,7 @@ HRESULT enemy::init(const char* imageName, POINT position, ENEMYDIRECTION enemyD
 	_hitCount = 0;
 	_smokeCount = 0;
 	_dieCount = 0;
+	_initCount = 0;
 
 	_jumpPower = 5.0f;
 	_gravity = 0.25f;
@@ -63,7 +64,7 @@ void enemy::update(int x, int y, float characterX, float characterY)
 
 	_characterRC = RectMakeCenter(characterX, characterY, 100, 100);
 
-	if (_enemyName != "dragon")
+	if (_enemyName != "dragon" && _enemyName != "bugDragon")
 	{
 		_rc = RectMake(x + _x, 2200 + y + _y - _imageName->getFrameHeight(),
 			_imageName->getFrameWidth(), _imageName->getFrameHeight());
@@ -74,7 +75,7 @@ void enemy::update(int x, int y, float characterX, float characterY)
 		_proveRC = RectMake(_rc.left - 100, _rc.top,
 			_imageName->getFrameWidth() + 200, _imageName->getFrameHeight());
 	}
-	if (_enemyName == "dragon")
+	if (_enemyName == "dragon" || _enemyName == "bugDragon")
 	{
 		_rc = RectMake(x + _x + 100, 2200 + y + _y - 100,
 			120, 90);
@@ -87,6 +88,15 @@ void enemy::update(int x, int y, float characterX, float characterY)
 		
 		_proveRC = RectMake(_imageRC.left - 300, _imageRC.top - 200,
 			_imageName->getFrameWidth() + 600, _imageName->getFrameHeight() + 200);
+		
+		if (_enemyState == E_ATTACK)
+		{
+			_lazerRC = RectMake(_rc.left - _lazer->getFrameWidth(), _rc.top - 40, _lazer->getFrameWidth() - 30, _lazer->getFrameHeight());
+		}
+		else
+		{
+			_lazerRC = RectMake(_rc.left - _lazer->getFrameWidth(), _rc.top - 40, 0, 0);
+		}
 	}
 }
 
@@ -101,17 +111,20 @@ void enemy::render()
 		Rectangle(getMemDC(), _bodyRC);
 		//Rectangle(getMemDC(), _characterRC);
 		Rectangle(getMemDC(), _rc);
+		Rectangle(getMemDC(), _lazerRC);
 	}
 }
 
 void enemy::draw()
 {
-	if (_enemyName != "dragon")
+	if (_enemyName != "dragon" && _enemyName != "bugDragon")
 	{
 		_imageName->frameRender(getMemDC(), _rc.left, _rc.top, _currentFrameX, _currentFrameY);
 	}
-	if (_enemyName == "dragon")
+	if ( _enemyName == "dragon" || _enemyName == "bugDragon")
 	{
+		
+		
 		_imageName->frameRender(getMemDC(), _imageRC.left, _imageRC.top, _currentFrameX, _currentFrameY);
 		if (_enemyState == E_ATTACK)
 		{
@@ -127,7 +140,12 @@ void enemy::enemyFrame()
 	//연기 상태일 때
 	if (_enemyState == E_SMOKE)
 	{
-		
+		_initCount++;
+		if (_initCount == 1)
+		{
+			_currentFrameX = 0;
+		}
+
 		if (_imageCount % 4 == 0)
 		{
 			if (_currentFrameX >= _imageName->getMaxFrameX()) _isDelete = true;
@@ -139,7 +157,7 @@ void enemy::enemyFrame()
 	}
 	else
 	{
-		if (_imageCount % 11 == 0)
+		if (_imageCount % 10 == 0)
 		{
 			if (_enemyDirection == E_RIGHT)
 			{
@@ -172,8 +190,8 @@ void enemy::enemyFrame()
 
 					//_imageName->setFrameX(_currentFrameX);
 					_currentFrameX--;
-					_currentFrameY = 1;
-					if (_enemyName == "dragon")
+
+					if (_enemyName == "dragon" || _enemyName == "bugDragon")
 					{
 						_currentFrameY = 0;
 					}
@@ -193,7 +211,7 @@ void enemy::enemyFrame()
 				if (_imageName->getMaxFrameX() == 0)
 				{
 					_currentFrameX = 0;
-					if (_enemyName == "dragon")
+					if (_enemyName == "dragon" || _enemyName == "bugDragon")
 					{
 						_currentFrameY = 0;
 					}
@@ -212,28 +230,32 @@ void enemy::enemyFrame()
 		_str = " and idle";
 		_strSum = _enemyName + _str;
 		_imageName = IMAGEMANAGER->findImage(_strSum);
-		
+		if (_currentFrameX >= _imageName->getMaxFrameX()) _currentFrameX = 0;
 		break;
 	case E_MOVE:
 		_str = " and move";
 		_strSum = _enemyName + _str;
 		_imageName = IMAGEMANAGER->findImage(_strSum);
+		if (_currentFrameX >= _imageName->getMaxFrameX()) _currentFrameX = 0;
 		move();
 		break;
 	case E_ATTACK:
 		_str = " and attack";
 		_strSum = _enemyName + _str;
 		_imageName = IMAGEMANAGER->findImage(_strSum);
+		if (_currentFrameX >= _imageName->getMaxFrameX()) _currentFrameX = 0;
 		attack();
 		break;
 	case E_DIE:
 		_str = " and die";
 		_strSum = _enemyName + _str;
 		_imageName = IMAGEMANAGER->findImage(_strSum);
+		if (_currentFrameX >= _imageName->getMaxFrameX()) _currentFrameX = 0;
 		die();
 		break;
 	case E_SMOKE:
 		_imageName = IMAGEMANAGER->findImage("smoke");
+		
 		break;
 	}
 }
@@ -248,7 +270,7 @@ void enemy::attack()
 
 void enemy::die()
 {
-	if (_enemyName != "dragon")
+	if (_enemyName != "dragon" && _enemyName != "bugDragon")
 	{
 		if (_characterX > _rc.left)
 		{
@@ -266,7 +288,7 @@ void enemy::die()
 			_jumpPower -= _gravity;
 		}
 	}
-	if (_enemyName == "dragon")
+	if (_enemyName == "dragon" || _enemyName == "bugDragon")
 	{
 		_dieCount++;
 

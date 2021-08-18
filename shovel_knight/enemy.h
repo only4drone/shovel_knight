@@ -19,11 +19,18 @@ enum ENEMYDIRECTION	//적 좌우 구분
 	E_RIGHT
 };
 
+enum ENEMYTYPE //적 타입
+{
+	E_NORMAL,
+	E_BOSS
+};
+
 class enemy : public gameNode
 {
 protected:
 	ENEMYSTATE		_enemyState;		
 	ENEMYDIRECTION	_enemyDirection;
+	ENEMYTYPE		_enemyType;
 
 	image*			_imageName;			//적이 사용할 이미지 이름
 	image*			_lazer;				//레이저 이미지
@@ -31,6 +38,7 @@ protected:
 	RECT			_proveRC;			//적이 플레이어를 감지하는 렉트
 	RECT			_bodyRC;			//드레곤 몸통 렉트
 	RECT			_imageRC;			//드레곤 이미지 렉트
+	RECT			_lazerRC;			//레이저 렉트
 
 	//이미지 프레임 번호로 사용할 변수
 	int				_currentFrameX;
@@ -74,6 +82,7 @@ protected:
 	bool _isDelete;		//true면 삭제
 	bool _isSmoke;		//ture면 적 상태가 E_SMOKE로 변함
 
+	 int _initCount;
 public:
 	enemy();
 	~enemy();
@@ -103,12 +112,17 @@ public:
 	inline RECT getRect() { return _rc; }					//적 렉트에 대한 접근자
 	inline RECT getproveRect() { return _proveRC; }			//적 감지렉트에 대한 접근자
 	inline RECT getbodyRect() { return _bodyRC; }			//적 바디렉트에 대한 접근자
+	inline RECT getLazerRect() { return _lazerRC; }			//적 레이저렉트에 대한 접근자
 	inline string getEnemyName() { return _enemyName; }		//적 이름에 대한 접근자 (혹시 몰라서 만들어둠)
 	
 	inline bool getDefense() { return _isDefense; }			// true일 때 플레이어와 충돌 되지 않게 하는 접근자
 	inline void setDefense(bool x) { _isDefense = x; }		// _isDefense에 대한 설정자
 	
+	inline int getAttackCount() { return _attackCount; }
+	inline void setAttackCount(int count) { _attackCount = count; }
+
 	inline ENEMYSTATE getEnemyState() { return _enemyState; }	//적 상태에 대한 접근자
+	inline ENEMYDIRECTION getEnemyDirction() { return _enemyDirection; }	//적 방향에 대한 접근자
 	inline void setEnemyState(ENEMYSTATE x) { _enemyState = x; }
 	
 	inline int getHit()	{ return _hitCount; }

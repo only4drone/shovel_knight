@@ -18,7 +18,7 @@ private:
 	int	 vibcnt;
 
 	character* _character;
-	
+
 
 public:
 	uiManager();
@@ -43,6 +43,10 @@ public:
 
 	void talklingManOn();
 	void talklingManOff();
+
+	bool getGoatShopOpen() { return goatShopOpen; }
+	bool getFireShopOpen() { return fireShopOpen; }
+	bool getTalkOpen() { return talkOpen; }
 
 	void setcharacterMemoryAddressLink(character* character) { _character = character; }// 캐릭터 클라스 링크 
 };

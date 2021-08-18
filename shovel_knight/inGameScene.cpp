@@ -45,7 +45,8 @@ HRESULT inGameScene::init()
 	_enemyManager->init();
 	_enemyManager->enemySetting();
 
-	//_backGround = _mapCamera->getBackGround();
+	SCENEMANAGER->setBossHp(12);
+	//보스의 체력을 여기서 세터로 설정해주세요
 
 	return S_OK;
 }
@@ -64,8 +65,7 @@ void inGameScene::update()
 
 	SCENEMANAGER->nowHP(_character->getCurrentHp());
 	//캐릭터의 현재 에이치피를 씬매니져로 전송
-	SCENEMANAGER->setBossHp(_character->getCurrentHp());
-	//보스의 체력을 여기서 세터로 설정해주세요
+
 }
 
 void inGameScene::render()
