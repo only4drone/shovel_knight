@@ -70,6 +70,9 @@
     <Filter Include="playGround\mapCamera">
       <UniqueIdentifier>{c7d1ca97-6cfd-4078-9e28-0fc913ca4f3e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="playGround\test">
+      <UniqueIdentifier>{67a454e1-1710-4374-a355-27c462164e90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -195,6 +198,9 @@
     <ClInclude Include="bugDragon.h">
       <Filter>playGround\enemy</Filter>
     </ClInclude>
+    <ClInclude Include="test.h">
+      <Filter>playGround\test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowsAPI.cpp">
@@ -307,6 +313,9 @@
     </ClCompile>
     <ClCompile Include="bugDragon.cpp">
       <Filter>playGround\enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>playGround\test</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
